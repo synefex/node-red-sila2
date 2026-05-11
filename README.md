@@ -103,7 +103,7 @@ SiLA 2 server we've tested.
 
 ## Limitations / roadmap
 
-This is the v0.1.0 release. Out of scope for now:
+This is the v1.0.0 release. Out of scope for now:
 
 - Observable commands (the `CommandExecutionUUID` flow with progress).
 - Observable properties (server-streaming subscriptions).

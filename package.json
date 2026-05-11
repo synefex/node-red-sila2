@@ -1,6 +1,6 @@
 {
   "name": "@synefex/node-red-sila2",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Node-RED nodes for SiLA 2 lab-device servers (gRPC over HTTP/2). Bundled SiLAFramework + SiLAService protos; static proto loading with optional extras.",
   "license": "Apache-2.0",
   "author": "Maximilian Wiens <maximilian.wiens@synefex.de> (Wiens Synefex GmbH)",
