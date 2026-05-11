@@ -1,0 +1,24 @@
+@synefex/node-red-sila
+Copyright 2026 Wiens Synefex GmbH
+
+This product is licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License in the accompanying LICENSE file
+or at http://www.apache.org/licenses/LICENSE-2.0.
+
+---
+
+This package bundles the canonical SiLA 2 framework protobuf definition
+in `protos/SiLAFramework.proto`, copied from sila_base:
+
+    sila_base
+    https://gitlab.com/SiLA2/sila_base
+    Copyright the SiLA Consortium contributors
+    Licensed under the Apache License, Version 2.0
+
+The bundled `protos/SiLAService.proto` is a hand-derived translation of
+the SiLAService Feature Definition (SiLAService.sila.xml) from sila_base
+into gRPC proto3 form. It carries the same Apache License, Version 2.0.
+
+Runtime dependencies (`@grpc/grpc-js`, `@grpc/proto-loader`, transitive
+`protobufjs`, etc.) are pulled in by `npm install` and carry their own
+licenses; see the LICENSE files distributed under `node_modules/`.

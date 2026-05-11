@@ -1,0 +1,137 @@
+<script type="text/javascript">
+  RED.nodes.registerType("sila-call-command", {
+    // Space (not '-') in the category: Node-RED 4 splits ASCII-dashed
+    // categories at the first '-' to form a collapsible parent group,
+    // so "Synefex-SiLA-2" would share a section with "Synefex-LADS".
+    // The space survives Node-RED's escape-then-display round-trip
+    // (space → '_' in IDs, '_' → space in the displayed label) and
+    // doesn't trigger the split, giving us a standalone section.
+    category: "Synefex SiLA 2",
+    color: "#A6BBCF",
+    defaults: {
+      name: { value: "" },
+      connection: { value: "", type: "sila-connection", required: true },
+      feature: { value: "" },
+      featureType: { value: "str" },
+      command: { value: "" },
+      commandType: { value: "str" },
+      params: { value: "{}" },
+      paramsType: { value: "json" },
+      outputProperty: { value: "payload" },
+      outputPropertyType: { value: "msg" }
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "font-awesome/fa-bolt",
+    paletteLabel: "SiLA 2 call",
+    label: function () {
+      if (this.name) return this.name;
+      if (this.commandType === "str" && this.command) return "call " + this.command;
+      return "SiLA 2 call";
+    },
+    oneditprepare: function () {
+      $("#node-input-feature").typedInput({
+        default: this.featureType || "str",
+        typeField: $("#node-input-featureType"),
+        types: ["str", "msg", "flow", "global", "env"]
+      });
+      $("#node-input-command").typedInput({
+        default: this.commandType || "str",
+        typeField: $("#node-input-commandType"),
+        types: ["str", "msg", "flow", "global", "env"]
+      });
+      $("#node-input-params").typedInput({
+        default: this.paramsType || "json",
+        typeField: $("#node-input-paramsType"),
+        types: ["json", "msg", "flow", "global"]
+      });
+      $("#node-input-outputProperty").typedInput({
+        default: this.outputPropertyType || "msg",
+        typeField: $("#node-input-outputPropertyType"),
+        types: ["msg", "flow", "global"]
+      });
+
+      // Picker: cascading Feature → Command dropdowns. Writes the chosen
+      // values into the manual fields; users can also still type.
+      if (window.SilaPicker) {
+        window.SilaPicker.attach({
+          kind: "command",
+          connectionFieldId: "node-input-connection",
+          featureFieldId: "node-input-feature",
+          methodFieldId: "node-input-command",
+        });
+      }
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="sila-call-command">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-connection"><i class="fa fa-server"></i> Connection</label>
+    <input type="text" id="node-input-connection">
+  </div>
+  <div class="form-row">
+    <label for="node-input-feature"><i class="fa fa-cube"></i> Feature</label>
+    <input type="text" id="node-input-feature" placeholder="MettlerToledoAX205Controller">
+    <input type="hidden" id="node-input-featureType">
+  </div>
+  <div class="form-row">
+    <label for="node-input-command"><i class="fa fa-bolt"></i> Command</label>
+    <input type="text" id="node-input-command" placeholder="GetStableWeight">
+    <input type="hidden" id="node-input-commandType">
+  </div>
+  <div class="form-row">
+    <label for="node-input-params"><i class="fa fa-list"></i> Parameters</label>
+    <input type="text" id="node-input-params">
+    <input type="hidden" id="node-input-paramsType">
+  </div>
+  <div class="form-row">
+    <label for="node-input-outputProperty"><i class="fa fa-arrow-right"></i> Output to</label>
+    <input type="text" id="node-input-outputProperty">
+    <input type="hidden" id="node-input-outputPropertyType">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="sila-call-command">
+  <p>Call an unobservable SiLA 2 command on a feature.</p>
+
+  <h3>Configuration</h3>
+  <dl class="message-properties">
+    <dt>Feature <span class="property-type">string</span></dt>
+    <dd>The feature identifier &mdash; short name (e.g.
+    <code>MettlerToledoAX205Controller</code>) or full proto-qualified
+    name. The connection node resolves short names via gRPC reflection
+    (case-insensitive match against the tail segment of the proto service
+    name).</dd>
+    <dt>Command <span class="property-type">string</span></dt>
+    <dd>The command name as declared in the feature (e.g.
+    <code>GetStableWeight</code>, <code>Tare</code>, <code>CloseDoor</code>).</dd>
+    <dt>Parameters <span class="property-type">object</span></dt>
+    <dd>Plain object encoded into the command's <code>_Parameters</code>
+    message. Use <code>{}</code> for parameter-less commands. Field
+    values can be raw natives &mdash; SiLA 2 basic-type wrapping is
+    applied at encode time via the protobufjs schema fetched by
+    reflection.</dd>
+  </dl>
+
+  <h3>Output</h3>
+  <p>The decoded <code>_Responses</code> message with SiLA 2 basic-type
+  wrappers (<code>{ value: ... }</code>) automatically unwrapped. Example
+  for <code>GetStableWeight</code>:</p>
+  <pre>{ Status: "S S", WeightValue: 82.6824, Unit: "g" }</pre>
+
+  <h3>Errors</h3>
+  <p>gRPC errors propagate via <code>done(err)</code>. SiLA 2 framework
+  errors (validation, undefined execution, defined errors) currently
+  surface as generic gRPC errors &mdash; full <code>sila-error-bin</code>
+  trailer decoding is on the roadmap.</p>
+
+  <h3>Observable commands</h3>
+  <p>Not yet supported &mdash; only unobservable (single round-trip)
+  commands work today. Observable commands need execution-UUID tracking
+  and server-streaming subscriptions.</p>
+</script>

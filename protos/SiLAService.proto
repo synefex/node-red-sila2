@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+// SiLAService is the mandatory core feature every SiLA 2 server implements.
+// Hand-derived from the canonical FDL at:
+//   https://gitlab.com/SiLA2/sila_base/raw/master/feature_definitions/org/silastandard/core/SiLAService/v1/SiLAService.sila.xml
+//
+// Property getter naming convention (per SiLA spec): each Property <Name>
+// is exposed as a unary rpc Get_<Name> with empty parameters, returning a
+// Get_<Name>_Responses message that has a single field <Name> of the
+// property's wrapped basic type.
+
+import "SiLAFramework.proto";
+
+package sila2.org.silastandard.core.silaservice.v1;
+
+service SiLAService {
+  // ---- Commands ----
+  rpc GetFeatureDefinition (GetFeatureDefinition_Parameters) returns (GetFeatureDefinition_Responses) {}
+  rpc SetServerName (SetServerName_Parameters) returns (SetServerName_Responses) {}
+
+  // ---- Property getters ----
+  rpc Get_ServerName (Get_ServerName_Parameters) returns (Get_ServerName_Responses) {}
+  rpc Get_ServerType (Get_ServerType_Parameters) returns (Get_ServerType_Responses) {}
+  rpc Get_ServerUUID (Get_ServerUUID_Parameters) returns (Get_ServerUUID_Responses) {}
+  rpc Get_ServerDescription (Get_ServerDescription_Parameters) returns (Get_ServerDescription_Responses) {}
+  rpc Get_ServerVersion (Get_ServerVersion_Parameters) returns (Get_ServerVersion_Responses) {}
+  rpc Get_ServerVendorURL (Get_ServerVendorURL_Parameters) returns (Get_ServerVendorURL_Responses) {}
+  rpc Get_ImplementedFeatures (Get_ImplementedFeatures_Parameters) returns (Get_ImplementedFeatures_Responses) {}
+}
+
+// ---- Command messages ----
+
+message GetFeatureDefinition_Parameters {
+  sila2.org.silastandard.String FeatureIdentifier = 1;
+}
+message GetFeatureDefinition_Responses {
+  sila2.org.silastandard.String FeatureDefinition = 1;
+}
+
+message SetServerName_Parameters {
+  sila2.org.silastandard.String ServerName = 1;
+}
+message SetServerName_Responses {
+}
+
+// ---- Property messages ----
+
+message Get_ServerName_Parameters {}
+message Get_ServerName_Responses {
+  sila2.org.silastandard.String ServerName = 1;
+}
+
+message Get_ServerType_Parameters {}
+message Get_ServerType_Responses {
+  sila2.org.silastandard.String ServerType = 1;
+}
+
+message Get_ServerUUID_Parameters {}
+message Get_ServerUUID_Responses {
+  sila2.org.silastandard.String ServerUUID = 1;
+}
+
+message Get_ServerDescription_Parameters {}
+message Get_ServerDescription_Responses {
+  sila2.org.silastandard.String ServerDescription = 1;
+}
+
+message Get_ServerVersion_Parameters {}
+message Get_ServerVersion_Responses {
+  sila2.org.silastandard.String ServerVersion = 1;
+}
+
+message Get_ServerVendorURL_Parameters {}
+message Get_ServerVendorURL_Responses {
+  sila2.org.silastandard.String ServerVendorURL = 1;
+}
+
+message Get_ImplementedFeatures_Parameters {}
+message Get_ImplementedFeatures_Responses {
+  repeated sila2.org.silastandard.String ImplementedFeatures = 1;
+}

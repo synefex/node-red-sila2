@@ -1,0 +1,101 @@
+<!-- Browser-side SiLA 2 picker widget. Served as a static asset by the
+     connection node's admin route; loaded here once so it's available on
+     window.SilaPicker for every action node's editor dialog. -->
+<script type="text/javascript" src="sila/picker.js"></script>
+
+<script type="text/javascript">
+  RED.nodes.registerType("sila-connection", {
+    category: "config",
+    defaults: {
+      name: { value: "" },
+      host: { value: "127.0.0.1", required: true },
+      port: { value: 50052, required: true, validate: RED.validators.number() },
+      insecure: { value: true },
+      extraProtoDirs: { value: "" },
+      extraProtoFiles: { value: "" }
+    },
+    label: function () {
+      const target = (this.host && this.port) ? `${this.host}:${this.port}` : "";
+      return this.name || target || "SiLA 2 connection";
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="sila-connection">
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-config-input-name" placeholder="e.g. AX205 balance">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-host"><i class="fa fa-globe"></i> Host</label>
+    <input type="text" id="node-config-input-host" placeholder="192.168.8.225">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-port"><i class="fa fa-plug"></i> Port</label>
+    <input type="number" id="node-config-input-port" placeholder="50052">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-insecure" style="width:auto">
+      <input type="checkbox" id="node-config-input-insecure" style="display:inline-block; width:auto; vertical-align:middle">
+      Insecure (no TLS &mdash; lab/dev mode)
+    </label>
+  </div>
+  <hr>
+  <div class="form-row">
+    <label for="node-config-input-extraProtoDirs"><i class="fa fa-folder-open"></i> Extra proto dirs</label>
+    <input type="text" id="node-config-input-extraProtoDirs"
+           placeholder="/home/user/sila-protos, /opt/protos">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-extraProtoFiles"><i class="fa fa-file-code-o"></i> Extra proto files</label>
+    <input type="text" id="node-config-input-extraProtoFiles"
+           placeholder="/path/to/MyFeature.proto">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="sila-connection">
+  <p>gRPC connection to a SiLA 2 server. One config node per server
+  endpoint. Owns a long-lived gRPC channel and a feature registry loaded
+  from <code>.proto</code> files, shared by every <code>sila-*</code>
+  action node that references it.</p>
+
+  <h3>Bundled features</h3>
+  <p>The package always loads:</p>
+  <ul>
+    <li><code>SiLAFramework.proto</code> &mdash; basic-type wrappers
+    (String, Real, Boolean, ...)</li>
+    <li><code>SiLAService.proto</code> &mdash; the mandatory core feature
+    every SiLA 2 server implements (ServerName, ImplementedFeatures, ...)</li>
+  </ul>
+  <p>That's enough to query any SiLA 2 server's identity surface
+  (`SiLAService` properties + commands) out of the box.</p>
+
+  <h3>Adding more features</h3>
+  <p>For domain features (balances, liquid handlers, etc.), you supply
+  their feature-specific <code>.proto</code> files. SiLA 2 servers
+  generate <code>.proto</code> from FDL XML; if your server runs the
+  <code>sila2</code> Python reference implementation, the generated
+  files live inside the running container and can be copied out with a
+  single shell command.</p>
+  <p>Once you have the <code>.proto</code> files, drop them in a
+  directory and point <b>Extra proto dirs</b> (or <b>Extra proto files</b>)
+  at the location. The lists are comma-separated; <code>.proto</code>
+  files in any listed directory are picked up automatically.</p>
+
+  <h3>Reflection</h3>
+  <p>Earlier versions of this package used gRPC reflection to discover
+  features at runtime. The Python <code>sila2</code> reference server
+  enables reflection by default, but our lab server has it disabled, and
+  Java/C# servers may not support it. Static proto loading is universal.</p>
+
+  <h3>TLS</h3>
+  <p>For development against an insecure server, leave <b>Insecure</b>
+  enabled. Production SiLA 2 servers run TLS with a self-signed cert
+  whose CN encodes the server UUID &mdash; pinned-cert TLS is not in
+  this phase of the package.</p>
+
+  <h3>Lifecycle</h3>
+  <p>Protos load on first call (no I/O at deploy). Per-service grpc
+  client instances are created lazily and reused across calls. Redeploy
+  to flush the cache.</p>
+</script>

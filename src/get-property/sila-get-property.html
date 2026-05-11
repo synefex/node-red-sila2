@@ -1,0 +1,125 @@
+<script type="text/javascript">
+  RED.nodes.registerType("sila-get-property", {
+    // See sila-call-command.html for why this is a space, not '-'.
+    category: "Synefex SiLA 2",
+    color: "#A6BBCF",
+    defaults: {
+      name: { value: "" },
+      connection: { value: "", type: "sila-connection", required: true },
+      feature: { value: "" },
+      featureType: { value: "str" },
+      property: { value: "" },
+      propertyType: { value: "str" },
+      outputProperty: { value: "payload" },
+      outputPropertyType: { value: "msg" },
+      unwrapSingle: { value: true }
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "font-awesome/fa-eye",
+    paletteLabel: "SiLA 2 get",
+    label: function () {
+      if (this.name) return this.name;
+      if (this.propertyType === "str" && this.property) return "get " + this.property;
+      return "SiLA 2 get";
+    },
+    oneditprepare: function () {
+      $("#node-input-feature").typedInput({
+        default: this.featureType || "str",
+        typeField: $("#node-input-featureType"),
+        types: ["str", "msg", "flow", "global", "env"]
+      });
+      $("#node-input-property").typedInput({
+        default: this.propertyType || "str",
+        typeField: $("#node-input-propertyType"),
+        types: ["str", "msg", "flow", "global", "env"]
+      });
+      $("#node-input-outputProperty").typedInput({
+        default: this.outputPropertyType || "msg",
+        typeField: $("#node-input-outputPropertyType"),
+        types: ["msg", "flow", "global"]
+      });
+
+      // Picker: cascading Feature → Property dropdowns. Properties are
+      // surfaced by their bare name (e.g. "ServerName"), not by the wire
+      // method name "Get_ServerName" — the node prepends Get_ at runtime.
+      if (window.SilaPicker) {
+        window.SilaPicker.attach({
+          kind: "property",
+          connectionFieldId: "node-input-connection",
+          featureFieldId: "node-input-feature",
+          methodFieldId: "node-input-property",
+        });
+      }
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="sila-get-property">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-connection"><i class="fa fa-server"></i> Connection</label>
+    <input type="text" id="node-input-connection">
+  </div>
+  <div class="form-row">
+    <label for="node-input-feature"><i class="fa fa-cube"></i> Feature</label>
+    <input type="text" id="node-input-feature" placeholder="SiLAService">
+    <input type="hidden" id="node-input-featureType">
+  </div>
+  <div class="form-row">
+    <label for="node-input-property"><i class="fa fa-eye"></i> Property</label>
+    <input type="text" id="node-input-property" placeholder="ServerName">
+    <input type="hidden" id="node-input-propertyType">
+  </div>
+  <div class="form-row">
+    <label for="node-input-outputProperty"><i class="fa fa-arrow-right"></i> Output to</label>
+    <input type="text" id="node-input-outputProperty">
+    <input type="hidden" id="node-input-outputPropertyType">
+  </div>
+  <div class="form-row">
+    <label for="node-input-unwrapSingle" style="width:auto">
+      <input type="checkbox" id="node-input-unwrapSingle" style="display:inline-block; width:auto; vertical-align:middle">
+      Unwrap single-field response (drop the property-named wrapper)
+    </label>
+  </div>
+</script>
+
+<script type="text/html" data-help-name="sila-get-property">
+  <p>Get the current value of an unobservable SiLA 2 property.</p>
+
+  <h3>Configuration</h3>
+  <dl class="message-properties">
+    <dt>Feature <span class="property-type">string</span></dt>
+    <dd>The feature identifier (short name or full proto-qualified
+    name).</dd>
+    <dt>Property <span class="property-type">string</span></dt>
+    <dd>The property name as declared on the feature (e.g.
+    <code>ServerName</code>, <code>ImplementedFeatures</code>). The node
+    prepends <code>Get_</code> automatically &mdash; if you provide
+    <code>Get_ServerName</code> it's used verbatim.</dd>
+    <dt>Unwrap single-field response <span class="property-type">boolean</span></dt>
+    <dd>When the <code>Get_&lt;Property&gt;_Responses</code> message has
+    one field (the typical case), unwrap it so <code>payload</code> is
+    the value directly. Disable to receive the wrapper object.</dd>
+  </dl>
+
+  <h3>Output</h3>
+  <p>The unwrapped property value. Examples:</p>
+  <pre>SiLAService.ServerName
+  → "MettlerToledoAX205SiLAServer"
+
+SiLAService.ImplementedFeatures
+  → [
+      "org.silastandard/core/SiLAService/v1",
+      "master.thesis/weighing/MettlerToledoAX205Controller/v1",
+      "master.thesis/weighing/MettlerToledoAX205Metadata/v1"
+    ]</pre>
+
+  <h3>Observable properties</h3>
+  <p>Not yet supported &mdash; only unobservable (single read) properties
+  work today. Observable properties would need server-streaming
+  subscription handling.</p>
+</script>

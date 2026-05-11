@@ -1,0 +1,56 @@
+{
+  "name": "@synefex/node-red-sila2",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for SiLA 2 lab-device servers (gRPC over HTTP/2). Bundled SiLAFramework + SiLAService protos; static proto loading with optional extras.",
+  "license": "Apache-2.0",
+  "author": "Maximilian Wiens <maximilian.wiens@synefex.de> (Wiens Synefex GmbH)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/synefex/node-red-sila2.git"
+  },
+  "homepage": "https://github.com/synefex/node-red-sila2#readme",
+  "bugs": {
+    "url": "https://github.com/synefex/node-red-sila2/issues"
+  },
+  "node-red": {
+    "version": ">=3.1.0",
+    "nodes": {
+      "sila-connection": "src/connection/sila-connection.js",
+      "sila-call-command": "src/call-command/sila-call-command.js",
+      "sila-get-property": "src/get-property/sila-get-property.js"
+    }
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.10.0",
+    "@grpc/proto-loader": "^0.7.10"
+  },
+  "devDependencies": {
+    "node-red": "^4.0.0",
+    "node-red-node-test-helper": "^0.3.4",
+    "mocha": "^10.7.0"
+  },
+  "scripts": {
+    "test": "mocha \"test/**/*.test.js\" --timeout 5000"
+  },
+  "files": [
+    "src/",
+    "protos/",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "node-red",
+    "node-red-contrib",
+    "sila",
+    "sila2",
+    "grpc",
+    "lab-automation",
+    "laboratory",
+    "synefex"
+  ]
+}
